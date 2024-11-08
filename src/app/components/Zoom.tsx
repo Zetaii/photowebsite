@@ -16,37 +16,6 @@ export default function ZoomParallax() {
   const scale8 = useTransform(scrollYProgress, [0, 1], [1, 8])
   const scale9 = useTransform(scrollYProgress, [0, 1], [1, 9])
 
-  const pictures = [
-    {
-      src: "https://t3.ftcdn.net/jpg/05/35/47/38/360_F_535473874_OWCa2ohzXXNZgqnlzF9QETsnbrSO9pFS.jpg",
-      scale: scale4,
-    },
-    {
-      src: "flappy.png",
-      scale: scale5,
-    },
-    {
-      src: "Zoom3.jpeg",
-      scale: scale6,
-    },
-    {
-      src: "Zoom4.jpeg",
-      scale: scale5,
-    },
-    {
-      src: "Zoom5.jpeg",
-      scale: scale6,
-    },
-    {
-      src: "Zoom6.jpeg",
-      scale: scale8,
-    },
-    {
-      src: "Zoom7.jpeg",
-      scale: scale9,
-    },
-  ]
-
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (latest >= 0.4) {
       console.log("Zoom", latest)
