@@ -1,10 +1,5 @@
 "use client"
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-} from "framer-motion"
+import { motion, useScroll, useTransform } from "framer-motion"
 import { useRef, useState, useEffect, MouseEvent } from "react"
 
 type MousePosition = {

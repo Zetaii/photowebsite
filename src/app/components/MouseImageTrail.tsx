@@ -1,7 +1,6 @@
 "use client"
 import { useAnimate } from "framer-motion"
 import React, { useRef, ReactNode, MouseEvent } from "react"
-import { FiMousePointer } from "react-icons/fi"
 
 type MouseImageTrailProps = {
   children: ReactNode
