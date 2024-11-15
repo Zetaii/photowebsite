@@ -14,15 +14,51 @@ const SPRING_OPTIONS = {
   damping: 50,
 }
 
-// Define the images array type and index type
-const imgs: string[] = [
-  "https://images.pexels.com/photos/4527160/pexels-photo-4527160.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/1048256/pexels-photo-1048256.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/147642/pexels-photo-147642.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/12766489/pexels-photo-12766489.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/13812425/pexels-photo-13812425.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/346529/pexels-photo-346529.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/1612351/pexels-photo-1612351.jpeg?auto=compress&cs=tinysrgb&w=600",
+// Updated type to include text content
+type ImageContent = {
+  url: string
+  title: string
+  description: string
+}
+
+// Updated images array with content
+const imgs: ImageContent[] = [
+  {
+    url: "https://images.unsplash.com/photo-1682686581498-5e85c7228119?auto=format&w=3840&q=100",
+    title: "Mountain Vista",
+    description:
+      "Discover breathtaking peaks and valleys in the heart of nature",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1682686580024-580519d4b2d2?auto=format&w=3840&q=100",
+    title: "Ocean Dreams",
+    description: "Dive into the serene beauty of endless horizons",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1682686579976-879b74d6d7ea?auto=format&w=3840&q=100",
+    title: "Forest Mystery",
+    description: "Explore ancient woodlands filled with wonder",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1682686580950-960d1d513532?auto=format&w=3840&q=100",
+    title: "Desert Whispers",
+    description: "Experience the quiet majesty of golden dunes",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?auto=format&w=3840&q=100",
+    title: "Arctic Silence",
+    description: "Witness the pristine beauty of frozen landscapes",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&w=3840&q=100",
+    title: "Tropical Paradise",
+    description: "Immerse yourself in vibrant coastal scenery",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1682687220199-d0124f48f95b?auto=format&w=3840&q=100",
+    title: "Sunset Serenity",
+    description: "Bask in the warm glow of golden hour",
+  },
 ]
 
 type ImagesProps = {
@@ -62,17 +98,19 @@ export const SwipeCarousel = () => {
 
   return (
     <div className="relative overflow-hidden bg-neutral-950 py-8">
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        style={{ x: dragX }}
-        animate={{ translateX: `-${imgIndex * 100}%` }}
-        transition={SPRING_OPTIONS}
-        onDragEnd={onDragEnd}
-        className="flex cursor-grab items-center active:cursor-grabbing"
-      >
-        <Images imgIndex={imgIndex} />
-      </motion.div>
+      <div className="w-[95vw] max-w-[1800px] mx-auto overflow-hidden">
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          style={{ x: dragX }}
+          animate={{ translateX: `-${imgIndex * 100}%` }}
+          transition={SPRING_OPTIONS}
+          onDragEnd={onDragEnd}
+          className="flex cursor-grab items-center active:cursor-grabbing"
+        >
+          <Images imgIndex={imgIndex} />
+        </motion.div>
+      </div>
       <Dots imgIndex={imgIndex} setImgIndex={setImgIndex} />
       <GradientEdges />
     </div>
@@ -82,20 +120,49 @@ export const SwipeCarousel = () => {
 const Images: React.FC<ImagesProps> = ({ imgIndex }) => {
   return (
     <>
-      {imgs.map((imgSrc, idx) => (
+      {imgs.map((img, idx) => (
         <motion.div
           key={idx}
           style={{
-            backgroundImage: `url(${imgSrc})`,
+            backgroundImage: `url(${img.url})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
+            WebkitBackfaceVisibility: "hidden",
+            backfaceVisibility: "hidden",
+            WebkitTransform: "translateZ(0)",
+            transform: "translateZ(0)",
           }}
           animate={{
             scale: imgIndex === idx ? 0.95 : 0.85,
           }}
           transition={SPRING_OPTIONS}
-          className="aspect-video w-screen shrink-0 rounded-xl bg-neutral-800 object-cover"
-        />
+          className="relative aspect-[16/9] w-[95vw] max-w-[1800px] shrink-0 rounded-xl bg-neutral-800 object-cover will-change-transform shadow-xl transform-gpu"
+        >
+          <motion.div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 bg-gradient-to-t from-black/60 to-transparent rounded-b-xl">
+            <motion.h2
+              className="text-2xl md:text-4xl font-bold text-white mb-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{
+                opacity: imgIndex === idx ? 1 : 0,
+                y: imgIndex === idx ? 0 : 20,
+              }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              {img.title}
+            </motion.h2>
+            <motion.p
+              className="text-base md:text-xl text-white/80"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{
+                opacity: imgIndex === idx ? 1 : 0,
+                y: imgIndex === idx ? 0 : 20,
+              }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              {img.description}
+            </motion.p>
+          </motion.div>
+        </motion.div>
       ))}
     </>
   )
