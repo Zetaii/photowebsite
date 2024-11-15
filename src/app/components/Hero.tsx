@@ -1,24 +1,59 @@
 "use client"
 import { motion, useScroll, useTransform, Variants } from "framer-motion"
-import { useRef, useState, useEffect, MouseEvent } from "react"
+import { useRef, useState, useEffect, MouseEvent, useMemo } from "react"
 
 type MousePosition = {
   x: number
   y: number
 }
 
+// Add letterVariants definition
+const letterVariants: Variants = {
+  hidden: (position: "top" | "bottom") => ({
+    y: position === "top" ? -100 : 200,
+    opacity: 0,
+    rotateX: position === "top" ? 45 : -45,
+  }),
+  fadeIn: {
+    y: 200,
+    opacity: 1,
+    rotateX: 0,
+    transition: {
+      duration: 0.8,
+      ease: [0.33, 1, 0.68, 1],
+      delay: 1.2,
+    },
+  },
+  visible: {
+    y: 0,
+    opacity: 1,
+    rotateX: 0,
+    transition: {
+      duration: 1.2,
+      ease: [0.33, 1, 0.68, 1],
+      delay: 0.3,
+    },
+  },
+  hover: {
+    scale: 1.1,
+    transition: {
+      duration: 0.3,
+      ease: "easeInOut",
+    },
+  },
+}
+
 export const Hero = () => {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll({ target: ref })
 
-  // Dynamic position for background, foreground, and headshot layers
+  // Move useTransform hooks to top level
   const backgroundY = useTransform(
     scrollY,
     [0, 800, 1600],
     ["0%", "15%", "35%"]
   )
   const backgroundScale = useTransform(scrollY, [0, 800, 1600], [1, 1.1, 1.2])
-
   const headshotY = useTransform(
     scrollY,
     [200, 800, 1600],
@@ -31,7 +66,6 @@ export const Hero = () => {
     ["0deg", "5deg", "12deg"]
   )
   const headshotOpacity = useTransform(scrollY, [0, 1000, 1600], [1, 0.8, 0.5])
-
   const foregroundY = useTransform(
     scrollY,
     [0, 800, 1600],
@@ -39,69 +73,66 @@ export const Hero = () => {
   )
   const foregroundScale = useTransform(scrollY, [0, 800, 1600], [1.1, 1.3, 1.5])
 
-  // Track mouse position for tilt and dynamic lighting
   const [mousePosition, setMousePosition] = useState<MousePosition>({
     x: 0,
     y: 0,
   })
+  const [hoverEffect, setHoverEffect] = useState<boolean>(false)
+  const mousePositionRef = useRef(mousePosition)
 
+  // Update mouse position with debounce
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return
-
-    const rect = ref.current.getBoundingClientRect()
-    setMousePosition({
-      x: (event.clientX - rect.left) / rect.width - 0.5,
-      y: (event.clientY - rect.top) / rect.height - 0.5,
+    requestAnimationFrame(() => {
+      const rect = ref.current?.getBoundingClientRect()
+      if (!rect) return
+      const newPosition = {
+        x: (event.clientX - rect.left) / rect.width - 0.5,
+        y: (event.clientY - rect.top) / rect.height - 0.5,
+      }
+      setMousePosition(newPosition)
+      mousePositionRef.current = newPosition
     })
   }
 
-  // Vibrational effect using state toggle
-  const [hoverEffect, setHoverEffect] = useState<boolean>(false)
+  // Optimize hover effect interval
   useEffect(() => {
-    const interval = setInterval(() => setHoverEffect((prev) => !prev), 3000)
+    const interval = setInterval(() => {
+      setHoverEffect((prev) => !prev)
+    }, 3000)
     return () => clearInterval(interval)
   }, [])
 
-  // Define 3D perspective and subtle lighting based on mouse position
+  // Constants for transform calculations
   const perspective = 1000
   const tiltIntensity = 35
   const moveIntensity = 25
   const lightIntensity = 0.2
-  const headshotTransform = `perspective(${perspective}px) 
+
+  // Memoize headshot transform string
+  const headshotTransform = useMemo(
+    () =>
+      `perspective(${perspective}px) 
     rotateX(${mousePosition.y * tiltIntensity}deg) 
     rotateY(${mousePosition.x * tiltIntensity}deg)
     translateX(${mousePosition.x * moveIntensity}px)
     translateY(${mousePosition.y * moveIntensity}px)
-    scale(1.05)`
+    scale(1.05)`,
+    [mousePosition.x, mousePosition.y]
+  )
 
-  // Update letter animation variants
-  const letterVariants: Variants = {
-    hidden: (position: "top" | "bottom") => ({
-      y: position === "top" ? -100 : 200,
-      opacity: 0,
-      rotateX: position === "top" ? 45 : -45,
-    }),
-    fadeIn: {
-      y: 200,
-      opacity: 1,
-      rotateX: 0,
-      transition: {
-        duration: 0.8,
-        ease: [0.33, 1, 0.68, 1],
-        delay: 1.2,
-      },
-    },
-    visible: {
-      y: 0,
-      opacity: 1,
-      rotateX: 0,
-      transition: {
-        duration: 1.2,
-        ease: [0.33, 1, 0.68, 1],
-        delay: 0.3,
-      },
-    },
-  }
+  // Pre-load images
+  useEffect(() => {
+    const imageUrls = [
+      "https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a",
+      "https://images.unsplash.com/photo-1470790376778-a9f5cf8d1805",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlpyuDdXvekEv9RkFaGa29l8xOuJGbtkCTsNdEXKrk_FgNRumg",
+    ]
+    imageUrls.forEach((url) => {
+      const img = new Image()
+      img.src = url
+    })
+  }, [])
 
   return (
     <div

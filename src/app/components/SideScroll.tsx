@@ -1,6 +1,6 @@
 "use client"
 import { motion, useTransform, useScroll } from "framer-motion"
-import { useRef } from "react"
+import { useRef, useEffect, useState } from "react"
 
 // Types
 interface CardType {
@@ -14,8 +14,16 @@ interface CardProps {
   card: CardType
 }
 
-// Component for individual cards
+// Optimized Card component
 const Card = ({ card }: CardProps) => {
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  useEffect(() => {
+    const img = new Image()
+    img.src = card.url
+    img.onload = () => setIsLoaded(true)
+  }, [card.url])
+
   return (
     <motion.div
       whileHover={{ scale: 1.05 }}
@@ -24,7 +32,7 @@ const Card = ({ card }: CardProps) => {
     >
       <div
         style={{
-          backgroundImage: `url(${card.url})`,
+          backgroundImage: isLoaded ? `url(${card.url})` : "none",
           backgroundSize: "cover",
           backgroundPosition: "center",
           imageRendering: "crisp-edges",
@@ -68,7 +76,12 @@ const HorizontalScrollCarousel = () => {
   return (
     <section ref={targetRef} className="relative h-[300vh] bg-neutral-900">
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-        <motion.div style={{ x }} className="flex gap-8 px-8">
+        <motion.div
+          style={{ x }}
+          className="flex gap-8 px-8"
+          initial={false}
+          layout="position"
+        >
           {cards.map((card) => (
             <Card card={card} key={card.id} />
           ))}

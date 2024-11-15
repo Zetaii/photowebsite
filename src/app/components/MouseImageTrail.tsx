@@ -1,6 +1,12 @@
 "use client"
 import { useAnimate } from "framer-motion"
-import React, { useRef, ReactNode, MouseEvent } from "react"
+import React, {
+  useRef,
+  ReactNode,
+  MouseEvent,
+  useEffect,
+  useState,
+} from "react"
 
 type MouseImageTrailProps = {
   children: ReactNode
@@ -45,21 +51,50 @@ const MouseImageTrailComponent: React.FC<MouseImageTrailProps> = ({
   rotationRange,
 }) => {
   const [scope, animate] = useAnimate()
+  const containerRef = useRef<HTMLDivElement>(null)
   const lastRenderPosition = useRef({ x: 0, y: 0 })
   const imageRenderCount = useRef(0)
+  const [isVisible, setIsVisible] = useState(false)
 
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    const { clientX, clientY } = e
-    const distance = calculateDistance(
-      clientX,
-      clientY,
-      lastRenderPosition.current.x,
-      lastRenderPosition.current.y
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsVisible(entry.isIntersecting)
+        })
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "50px",
+      }
     )
 
-    if (distance >= renderImageBuffer) {
-      lastRenderPosition.current = { x: clientX, y: clientY }
-      renderNextImage()
+    if (containerRef.current) {
+      observer.observe(containerRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!isVisible || !containerRef.current) return
+
+    const rect = containerRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+      const distance = calculateDistance(
+        x,
+        y,
+        lastRenderPosition.current.x,
+        lastRenderPosition.current.y
+      )
+
+      if (distance >= renderImageBuffer) {
+        lastRenderPosition.current = { x, y }
+        renderNextImage(x + rect.left, y + rect.top)
+      }
     }
   }
 
@@ -74,65 +109,69 @@ const MouseImageTrailComponent: React.FC<MouseImageTrailProps> = ({
     return Math.sqrt(deltaX * deltaX + deltaY * deltaY)
   }
 
-  const renderNextImage = () => {
+  const renderNextImage = (absoluteX: number, absoluteY: number) => {
     const imageIndex = imageRenderCount.current % images.length
     const selector = `[data-mouse-move-index="${imageIndex}"]`
-    const el = document.querySelector<HTMLImageElement>(selector)
 
-    if (el) {
-      el.style.top = `${lastRenderPosition.current.y}px`
-      el.style.left = `${lastRenderPosition.current.x}px`
-      el.style.zIndex = imageRenderCount.current.toString()
+    if (scope.current) {
+      const el = scope.current.querySelector(selector) as HTMLElement
+      if (el) {
+        el.style.top = `${absoluteY}px`
+        el.style.left = `${absoluteX}px`
+        el.style.zIndex = imageRenderCount.current.toString()
 
-      const rotation = Math.random() * rotationRange
+        const rotation = Math.random() * rotationRange
 
-      animate(
-        selector,
-        {
-          opacity: [0, 1],
-          transform: [
-            `translate(-50%, -25%) scale(0.5) ${
-              imageIndex % 2
-                ? `rotate(${rotation}deg)`
-                : `rotate(-${rotation}deg)`
-            }`,
-            `translate(-50%, -50%) scale(1) ${
-              imageIndex % 2
-                ? `rotate(-${rotation}deg)`
-                : `rotate(${rotation}deg)`
-            }`,
-          ],
-        },
-        { type: "spring", damping: 15, stiffness: 200 }
-      )
+        animate(
+          selector,
+          {
+            opacity: [0, 1],
+            transform: [
+              `translate(-50%, -25%) scale(0.5) ${
+                imageIndex % 2
+                  ? `rotate(${rotation}deg)`
+                  : `rotate(-${rotation}deg)`
+              }`,
+              `translate(-50%, -50%) scale(1) ${
+                imageIndex % 2
+                  ? `rotate(-${rotation}deg)`
+                  : `rotate(${rotation}deg)`
+              }`,
+            ],
+          },
+          { type: "spring", damping: 15, stiffness: 200 }
+        )
 
-      animate(
-        selector,
-        { opacity: [1, 0] },
-        { ease: "linear", duration: 0.5, delay: 5 }
-      )
+        animate(
+          selector,
+          { opacity: [1, 0] },
+          { ease: "linear", duration: 0.5, delay: 5 }
+        )
 
-      imageRenderCount.current += 1
+        imageRenderCount.current += 1
+      }
     }
   }
 
   return (
-    <div
-      ref={scope}
-      className="relative overflow-hidden"
-      onMouseMove={handleMouseMove}
-    >
-      {children}
+    <div ref={scope}>
+      <div
+        ref={containerRef}
+        className="relative overflow-hidden"
+        onMouseMove={handleMouseMove}
+      >
+        {children}
 
-      {images.map((img, index) => (
-        <img
-          className="pointer-events-none absolute left-0 top-0 h-48 w-auto rounded-xl border-2 border-black bg-neutral-900 object-cover opacity-0"
-          src={img}
-          alt={`Mouse move image ${index}`}
-          key={index}
-          data-mouse-move-index={index}
-        />
-      ))}
+        {images.map((img, index) => (
+          <img
+            className="pointer-events-none absolute left-0 top-0 h-48 w-auto rounded-xl border-2 border-black bg-neutral-900 object-cover opacity-0"
+            src={img}
+            alt={`Mouse move image ${index}`}
+            key={index}
+            data-mouse-move-index={index}
+          />
+        ))}
+      </div>
     </div>
   )
 }
