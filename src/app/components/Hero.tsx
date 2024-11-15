@@ -1,5 +1,5 @@
 "use client"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { motion, useScroll, useTransform, Variants } from "framer-motion"
 import { useRef, useState, useEffect, MouseEvent } from "react"
 
 type MousePosition = {
@@ -64,11 +64,56 @@ export const Hero = () => {
 
   // Define 3D perspective and subtle lighting based on mouse position
   const perspective = 1000
-  const tiltIntensity = 20
-  const lightIntensity = 0.15
-  const headshotTransform = `perspective(${perspective}px) rotateX(${
-    mousePosition.y * tiltIntensity
-  }deg) rotateY(${mousePosition.x * tiltIntensity}deg)`
+  const tiltIntensity = 35
+  const moveIntensity = 25
+  const lightIntensity = 0.2
+  const headshotTransform = `perspective(${perspective}px) 
+    rotateX(${mousePosition.y * tiltIntensity}deg) 
+    rotateY(${mousePosition.x * tiltIntensity}deg)
+    translateX(${mousePosition.x * moveIntensity}px)
+    translateY(${mousePosition.y * moveIntensity}px)
+    scale(1.05)`
+
+  // Update letter animation variants
+  const letterVariants: Variants = {
+    hidden: (position: "top" | "bottom") => ({
+      y: position === "top" ? -100 : 200,
+      opacity: 0,
+      rotateX: position === "top" ? 45 : -45,
+    }),
+    fadeIn: {
+      y: 200,
+      opacity: 1,
+      rotateX: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.33, 1, 0.68, 1],
+        delay: 1.2,
+      },
+    },
+    visible: {
+      y: 0,
+      opacity: 1,
+      rotateX: 0,
+      transition: {
+        duration: 1.2,
+        ease: [0.33, 1, 0.68, 1],
+        delay: 0.3,
+      },
+    },
+  }
+
+  // Add hover animation variants
+  const hoverVariants: Variants = {
+    hover: {
+      scale: 1.1,
+      textShadow: "0 0 8px rgb(255,255,255)",
+      transition: {
+        duration: 0.3,
+        yoyo: Infinity,
+      },
+    },
+  }
 
   return (
     <div
@@ -76,6 +121,118 @@ export const Hero = () => {
       className="relative h-[150vh] overflow-hidden"
       onMouseMove={handleMouseMove}
     >
+      {/* Updated text container with better mobile positioning */}
+      <div className="absolute top-[15%] md:top-[20%] w-full h-48 z-10">
+        <div className="relative flex justify-center items-center">
+          {/* Top row letters - D, N, Y with mobile adjustments */}
+          <motion.span
+            custom="top"
+            variants={letterVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            className="font-tech text-[4rem] sm:text-[6rem] md:text-[8rem] lg:text-[13rem] font-black text-black absolute left-[15%] sm:left-[15%] tracking-tight"
+            style={{
+              textShadow: `
+                0 0 20px rgba(255,255,255,0.5),
+                0 0 40px rgba(255,255,255,0.3),
+                0 0 60px rgba(255,255,255,0.1)
+              `,
+              WebkitTextStroke: "2px rgba(255,255,255,1)",
+              filter: "drop-shadow(0 0 15px rgba(255,255,255,0.3))",
+              transform: "skew(-5deg)",
+            }}
+          >
+            D
+          </motion.span>
+          {/* Update other top row letters similarly */}
+          <motion.span
+            custom="top"
+            variants={letterVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            transition={{ delay: 0.2 }}
+            className="font-tech text-[4rem] sm:text-[6rem] md:text-[8rem] lg:text-[13rem] font-black text-black absolute left-[45%] sm:left-[45%] tracking-tight"
+            style={{
+              textShadow: `
+                0 0 20px rgba(255,255,255,0.5),
+                0 0 40px rgba(255,255,255,0.3),
+                0 0 60px rgba(255,255,255,0.1)
+              `,
+              WebkitTextStroke: "2px rgba(255,255,255,1)",
+              filter: "drop-shadow(0 0 15px rgba(255,255,255,0.3))",
+              transform: "skew(5deg)",
+            }}
+          >
+            N
+          </motion.span>
+          <motion.span
+            custom="top"
+            variants={letterVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            transition={{ delay: 0.4 }}
+            className="font-tech text-[4rem] sm:text-[6rem] md:text-[8rem] lg:text-[13rem] font-black text-black absolute left-[75%] sm:left-[75%] tracking-tight"
+            style={{
+              textShadow: `
+                0 0 20px rgba(255,255,255,0.5),
+                0 0 40px rgba(255,255,255,0.3),
+                0 0 60px rgba(255,255,255,0.1)
+              `,
+              WebkitTextStroke: "2px rgba(255,255,255,1)",
+              filter: "drop-shadow(0 0 15px rgba(255,255,255,0.3))",
+              transform: "skew(-3deg)",
+            }}
+          >
+            Y
+          </motion.span>
+
+          {/* Bottom row letters with mobile adjustments */}
+          <motion.span
+            custom="bottom"
+            variants={letterVariants}
+            initial="hidden"
+            animate={["fadeIn", "visible"]}
+            whileHover="hover"
+            className="font-tech text-[4rem] sm:text-[6rem] md:text-[8rem] lg:text-[13rem] font-black text-black absolute left-[30%] sm:left-[30%] tracking-tight"
+            style={{
+              textShadow: `
+                0 0 20px rgba(255,255,255,0.5),
+                0 0 40px rgba(255,255,255,0.3),
+                0 0 60px rgba(255,255,255,0.1)
+              `,
+              WebkitTextStroke: "2px rgba(255,255,255,1)",
+              filter: "drop-shadow(0 0 15px rgba(255,255,255,0.3))",
+              transform: "skew(3deg)",
+            }}
+          >
+            O
+          </motion.span>
+          <motion.span
+            custom="bottom"
+            variants={letterVariants}
+            initial="hidden"
+            animate={["fadeIn", "visible"]}
+            whileHover="hover"
+            className="font-tech text-[4rem] sm:text-[6rem] md:text-[8rem] lg:text-[13rem] font-black text-black absolute left-[60%] sm:left-[60%] tracking-tight"
+            style={{
+              textShadow: `
+                0 0 20px rgba(255,255,255,0.5),
+                0 0 40px rgba(255,255,255,0.3),
+                0 0 60px rgba(255,255,255,0.1)
+              `,
+              WebkitTextStroke: "2px rgba(255,255,255,1)",
+              filter: "drop-shadow(0 0 15px rgba(255,255,255,0.3))",
+              transform: "skew(-2deg)",
+            }}
+          >
+            N
+          </motion.span>
+        </div>
+      </div>
+
       {/* Background Layer */}
       <motion.div
         style={{
@@ -106,33 +263,35 @@ export const Hero = () => {
         />
       </motion.div>
 
-      {/* Headshot Layer with 3D tilt and vibrational hover effect */}
+      {/* Headshot Layer with mobile adjustments */}
       <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          duration: 1,
+          delay: 0.41,
+          ease: [0.25, 0.8, 0.5, 1],
+        }}
         style={{
           y: headshotY,
           scale: headshotScale,
           rotate: headshotRotation,
           opacity: headshotOpacity,
           transform: hoverEffect ? headshotTransform : "",
-          translateX: `${mousePosition.x * 10}px`,
-          translateY: `${mousePosition.y * 10}px`,
         }}
-        transition={{
-          duration: 1.5,
-          ease: [0.33, 1, 0.68, 1],
-          repeat: Infinity,
-          repeatType: "mirror",
-        }}
-        className="absolute top-1/2 left-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 shadow-xl rounded-full"
+        className="absolute top-[45%] sm:top-[40%] md:top-[35%] left-[50%] h-[200px] w-[200px] sm:h-[300px] sm:w-[300px] md:h-[400px] md:w-[400px] -translate-x-[50%] -translate-y-[50%] shadow-xl rounded-full transform-gpu"
       >
-        <img
-          src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=cover"
+        <motion.img
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlpyuDdXvekEv9RkFaGa29l8xOuJGbtkCTsNdEXKrk_FgNRumg"
           alt="Headshot"
           className="h-full w-full object-cover rounded-full shadow-lg"
           style={{
             transformOrigin: "center",
-            filter: `brightness(${1 + mousePosition.y * lightIntensity})`,
+            filter: `brightness(${1 + mousePosition.y * lightIntensity})
+                    contrast(${1 + Math.abs(mousePosition.x) * 0.1})`,
           }}
+          whileHover={{ scale: 1.03 }}
+          transition={{ duration: 0.2 }}
         />
       </motion.div>
 
