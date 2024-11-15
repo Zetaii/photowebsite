@@ -2,33 +2,73 @@
 import { motion, useTransform, useScroll } from "framer-motion"
 import { useRef } from "react"
 
-// Define a type for Card data
-type CardType = {
+// Types
+interface CardType {
   url: string
   title: string
+  description: string
   id: number
 }
 
-const Example = () => {
+interface CardProps {
+  card: CardType
+}
+
+// Component for individual cards
+const Card = ({ card }: CardProps) => {
   return (
-    <div className="bg-neutral-800">
-      <HorizontalScrollCarousel />
-    </div>
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      transition={{ duration: 0.2 }}
+      className="group relative h-[400px] md:h-[700px] w-[300px] md:w-[500px] overflow-hidden rounded-2xl bg-neutral-800"
+    >
+      <div
+        style={{
+          backgroundImage: `url(${card.url})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          imageRendering: "crisp-edges",
+        }}
+        className="absolute inset-0 z-0 transition-transform duration-500 will-change-transform group-hover:scale-110"
+      />
+      <div className="absolute inset-0 bg-neutral-900/10 mix-blend-overlay" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/90" />
+      <div className="absolute bottom-0 z-10 p-4 md:p-8">
+        <motion.h2
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-2xl md:text-4xl font-bold text-white mb-2 md:mb-4"
+        >
+          {card.title}
+        </motion.h2>
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="text-sm md:text-lg text-white/80 max-w-md"
+        >
+          {card.description}
+        </motion.p>
+      </div>
+    </motion.div>
   )
 }
 
+// Main carousel component
 const HorizontalScrollCarousel = () => {
   const targetRef = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({
     target: targetRef,
+    offset: ["start start", "end end"],
   })
 
-  const x = useTransform(scrollYProgress, [0, 1], ["1%", "-95%"])
+  const x = useTransform(scrollYProgress, [0, 1], ["1%", "-65%"])
 
   return (
     <section ref={targetRef} className="relative h-[300vh] bg-neutral-900">
-      <div className="sticky bg-black top-0 flex h-screen items-center overflow-hidden">
-        <motion.div style={{ x }} className="flex gap-4">
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+        <motion.div style={{ x }} className="flex gap-8 px-8">
           {cards.map((card) => (
             <Card card={card} key={card.id} />
           ))}
@@ -38,71 +78,57 @@ const HorizontalScrollCarousel = () => {
   )
 }
 
-// Define props type for the Card component
-type CardProps = {
-  card: CardType
-}
-
-const Card = ({ card }: CardProps) => {
+// Main component export
+export default function SideScroll() {
   return (
-    <div
-      key={card.id}
-      className="group relative h-[450px] w-[450px] overflow-hidden "
-    >
-      <div
-        style={{
-          backgroundImage: `url(${card.url})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-        className="absolute inset-0 z-0 transition-transform duration-300 group-hover:scale-110"
-      ></div>
-      <div className="absolute inset-0 z-10 grid place-content-center">
-        <p className="bg-gradient-to-br from-white/20 to-white/0 p-8 text-6xl font-black uppercase text-white backdrop-blur-lg">
-          {card.title}
-        </p>
-      </div>
+    <div className="bg-neutral-900">
+      <HorizontalScrollCarousel />
     </div>
   )
 }
 
-export default Example
-
-// Define the cards array with the CardType type
+// Data
 const cards: CardType[] = [
   {
-    url: "https://images.pexels.com/photos/33109/fall-autumn-red-season.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    title: "Title 1",
+    url: "https://images.unsplash.com/photo-1682686581498-5e85c7228119?q=100&w=2070",
+    title: "Natural Wonders",
+    description: "Explore the breathtaking beauty of autumn landscapes",
     id: 1,
   },
   {
-    url: "https://images.pexels.com/photos/443446/pexels-photo-443446.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    title: "Title 2",
+    url: "https://images.unsplash.com/photo-1682686580024-580519d4b2d2?q=100&w=2070",
+    title: "Mountain Peaks",
+    description: "Discover majestic mountain ranges and scenic views",
     id: 2,
   },
   {
-    url: "https://images.pexels.com/photos/326055/pexels-photo-326055.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    title: "Title 3",
+    url: "https://images.unsplash.com/photo-1682686579976-879b74d6d7ea?q=100&w=2070",
+    title: "Ocean Depths",
+    description: "Dive into the mysterious world beneath the waves",
     id: 3,
   },
   {
-    url: "https://images.pexels.com/photos/33045/lion-wild-africa-african.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    title: "Title 4",
+    url: "https://images.unsplash.com/photo-1682686580950-960d1d513532?q=100&w=2070",
+    title: "Wildlife",
+    description: "Encounter magnificent creatures in their natural habitat",
     id: 4,
   },
   {
-    url: "https://images.pexels.com/photos/807598/pexels-photo-807598.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    title: "Title 5",
+    url: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?q=100&w=2070",
+    title: "Desert Sands",
+    description: "Experience the raw beauty of desert landscapes",
     id: 5,
   },
   {
-    url: "https://images.pexels.com/photos/3680912/pexels-photo-3680912.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    title: "Title 6",
+    url: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?q=100&w=2070",
+    title: "Forest Tales",
+    description: "Wander through ancient forests and hidden paths",
     id: 6,
   },
   {
-    url: "https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    title: "Title 7",
+    url: "https://images.unsplash.com/photo-1682687220199-d0124f48f95b?q=100&w=2070",
+    title: "Arctic Dreams",
+    description: "Witness the pristine beauty of polar regions",
     id: 7,
   },
 ]
