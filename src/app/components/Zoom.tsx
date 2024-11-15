@@ -1,6 +1,5 @@
 "use client"
 import { useScroll, useTransform, motion } from "framer-motion"
-import { useMotionValueEvent } from "framer-motion"
 import { useRef } from "react"
 
 export default function ZoomParallax() {
