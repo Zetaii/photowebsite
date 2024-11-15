@@ -103,18 +103,6 @@ export const Hero = () => {
     },
   }
 
-  // Add hover animation variants
-  const hoverVariants: Variants = {
-    hover: {
-      scale: 1.1,
-      textShadow: "0 0 8px rgb(255,255,255)",
-      transition: {
-        duration: 0.3,
-        yoyo: Infinity,
-      },
-    },
-  }
-
   return (
     <div
       ref={ref}

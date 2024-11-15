@@ -72,7 +72,7 @@ export const Footer = () => {
               Follow Us
             </h4>
             <div className="flex flex-col space-y-4">
-              {["Instagram", "Facebook", "Twitter"].map((social, index) => (
+              {["Instagram", "Facebook", "Twitter"].map((social) => (
                 <motion.a
                   key={social}
                   href="#"
